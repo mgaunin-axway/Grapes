@@ -37,6 +37,7 @@
 		<jv.version>1.8</jv.version>
 		<maven.version>3.0.3</maven.version>
 		<jakson.version>2.2.0</jakson.version>
+		<jacoco.maven.plugin.version>0.7.5.201505241946</jacoco.maven.plugin.version>
 	</properties>
 
 	<developers>
@@ -252,6 +253,11 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>1.5</version>
                 </plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.maven.plugin.version}</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -287,6 +293,56 @@
                 </plugins>
             </build>
         </profile>
+		<profile>
+			<id>coverage</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>prepare-jacoco-agent</id>
+								<phase>process-test-classes</phase>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+								<configuration>
+									<append>true</append>
+									<propertyName>jacoco.agent.arg</propertyName>
+								</configuration>
+							</execution>
+							<execution>
+								<id>create-jacoco-report</id>
+								<phase>test</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<artifactId>maven-surefire-plugin</artifactId>
+							<configuration>
+								 <argLine>${surefire.argLine} ${jacoco.agent.arg}</argLine>
+							</configuration>
+						</plugin>
+						<plugin>
+							<artifactId>maven-failsafe-plugin</artifactId>
+							<configuration>
+								 <argLine>${failsafe.argLine} ${jacoco.agent.arg}</argLine>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
     </profiles>
   
 </project>
